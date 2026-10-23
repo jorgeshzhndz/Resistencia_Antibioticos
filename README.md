@@ -1,6 +1,6 @@
 # EDA de Resistencia Antimicrobiana (Antimicrobial Resistance - AMR)
 
-Guía y estructura para realizar un Análisis Exploratorio de Datos (EDA) eficiente sobre los patrones de resistencia bacteriana, combinando datos clínicos, demográficos, hospitalarios y socioeconómicos.
+Análisis Exploratorio de Datos (EDA) eficiente sobre los patrones de resistencia bacteriana, combinando datos clínicos, demográficos, hospitalarios y socioeconómicos.
 
 # Pregunta principal 
 ¿Qué factores clínicos, demográficos, hospitalarios y socioeconómicos están más fuertemente asociados a la aparición de resistencia antimicrobiana (AMR) en los pacientes?
