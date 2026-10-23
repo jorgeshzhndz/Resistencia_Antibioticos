@@ -9,9 +9,9 @@ Análisis Exploratorio de Datos (EDA) eficiente sobre los patrones de resistenci
 
 ## 📂 Dataset y ficheros utilizados 
 
-El proyecto se divide en un **Análisis general** para un análisis rápido y completo de la base de datos, y **Análisis extra** para profundizar en determinantes socioeconómicos y exposición farmacológica previa. En análisis futuros se podría analizar la comorbilidad de los paciente y su relación con la aparición de resistencias a antibióticos. 
+El proyecto se divide en un **Análisis general** para un análisis rápido y completo de la base de datos, y un **Análisis extra** para profundizar en determinantes socioeconómicos y exposición farmacológica previa. En análisis futuros se podría analizar la comorbilidad de los paciente y su relación con la aparición de resistencias a antibióticos. 
 
-### 1. Análisis general _ 
+### 1. Análisis general  
 
 *   **`cohort.csv`**: Define la cohorte base de pacientes/episodios de estudio.
 *   **`microbial_resistance.csv`**: Contiene los aislamientos microbiológicos y sus perfiles de sensibilidad/resistencia a distintos antibióticos.
