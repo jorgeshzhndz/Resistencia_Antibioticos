@@ -22,6 +22,9 @@ El proyecto se divide en un **Análisis general** para un análisis rápido y co
 *   **`adi_scores.csv` (48 MB)**: Añade el Índices de Deprivación del Área (**ADI**). Permite correlacionar la resistencia con factores socioeconómicos del paciente.
 *   **`antibiotic_class_exposure.csv` (540 MB)**: Historial de exposición previa a clases de antibióticos. *Nota técnica: Requiere agregación previa por cultivo/paciente antes de hacer el `merge` con la tabla principal.*
 
+### 3. Comparaciones con otros países 
+Ver datos con resistencias en España (?)
+
 ##  Uso y ética
 
 El dataset es público en Dryad con fines de investigación y está desidentificado (identificadores anonimizados, edad agrupada, fechas alteradas). El estudio original fue aprobado por el IRB de Stanford (eProtocol #70466). No se debe intentar reidentificar a ningún paciente.
