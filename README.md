@@ -4,7 +4,7 @@ Análisis exploratorio y estadístico de qué factores sociodemográficos, clín
 
 La resistencia a los antimicrobianos (RAM) constituye uno de los principales retos actuales de salud pública, debido a su creciente impacto sobre la eficacia de los tratamientos y el manejo de las enfermedades infecciosas. Su aparición y propagación están relacionadas con múltiples factores, entre ellos el uso de antimicrobianos y las características clínicas y epidemiológicas de los pacientes. Por ello, resulta fundamental identificar los grupos de población y los contextos asistenciales en los que se observa una mayor prevalencia de microorganismos no sensibles. Este análisis pretende estudiar la relación entre los factores demográficos, socioeconómicos y clínicos y la presencia de resistencia antimicrobiana. Los resultados pueden contribuir a comprender mejor su distribución epidemiológica e identificar posibles grupos prioritarios para las estrategias de vigilancia y prevención.
 
-**Autoría:** _Jorge Sánchez Hernández_ · **Notebook principal:** `notebooks/memoria.ipynb`
+**Autoría:** _Jorge Sánchez Hernández_ · **Notebook principal:** `src/memoria.ipynb`
 
 ## Preguntas de investigación
 
@@ -35,20 +35,39 @@ electrónica de Stanford Health Care (pacientes adultos, 1999-2024). Son públic
 ## Estructura del repositorio
 
 ```
-.
-├── README.md
-├── requirements.txt
-├── notebooks/
-│   └── memoria.ipynb          # análisis completo (secciones 1-5)
+Resistencia_Antibioticos/
+├── data/
+│   ├── adi_scores.csv
+│   ├── clinical_sociodemographic_resistance.csv
+│   ├── cohort_amr_summary.csv
+│   ├── cohort_preanalysis.csv
+│   ├── cohort.csv
+│   ├── cohorte_combinaciones_resistentes.csv
+│   ├── demographics.csv
+│   ├── microbial_resistance.csv
+│   ├── microorganism_antibiotic_resistance.csv
+│   └── ward_info.csv
+├── graphs/
+│   ├── graph_1_res_per_pac.png
+│   ├── graph_2_adi.png
+│   ├── graph_2_age.png
+│   ├── graph_2_amr_factor.png
+│   ├── graph_2_culture.png
+│   ├── graph_2_gender.png
+│   ├── graph_3_v_cramer.png
+│   └── heatmap_completo.svg
+├── img/
+│   └── diagrama_flujo_cohorte_amr.svg
+├── pptx/
+│   ├── EDA_Bootcamp_The_Bridge.pdf
+│   └── EDA_Bootcamp_The_Bridge.pptx
+├── src/
+│   └── memoria.ipynb
 ├── utils/
-│   └── amr_def.py             # funciones y estilo de gráficos (el notebook hace `from utils.amr_def import ...`)
-├── data/         # CSV de ARMD + ficheros intermedios (no se versionan)
-├── graphs/       #Gráficos
-│    └── grafico 1
-│    └── grafico 2...
-├── venv/ 
-└── img/
-    └── diagrama_flujo_cohorte_amr.svg
+│   └── amr_def.py
+├── .gitignore
+├── README.md
+└── requirements.txt
 ```
 
 El notebook añade la carpeta padre a `sys.path` y lee `../data` y `../img`, así que **hay que ejecutarlo desde `notebooks/`**.
@@ -109,6 +128,8 @@ Las secciones 1 y 2 introducen el por qué de nuestro análisis y se procede a l
   porcentuales: género (74,1 % frente a 65,2 % entre los grupos codificados), tipo de cultivo (respiratorio 74,6 % frente a orina 66,2 %),
   ADI (quintil más desfavorecido 73,1 % frente a 65,1 %) y edad (62,1 % a los 18-24 años frente a ≈ 69-70 % desde los 55).
 - **Modelo multivariable:** AUC 0,58 y pseudo-R² de McFadden 0,012. Las variables disponibles explican muy poco de la AMR. El modelo de regresión logística presentó un pseudo-R² de McFadden de 0,0123, lo que indica una mejora limitada del ajuste respecto al modelo nulo. Este resultado sugiere que las variables sociodemográficas y clínicas incluidas aportan una capacidad explicativa conjunta reducida para la presencia de resistencia antimicrobiana.
+
+-  **Patógenos clave de la cohorte**: se confirma la presencia de Enterococcus faecium resistente a vancomicina (ERV, 39%), una marcada multirresistencia en Pseudomonas aeruginosa que compromete los carbapenémicos de rescate, una alta resistencia en Escherichia coli frente a tratamientos habituales con sospecha de BLEE, y en S. aureus MRSA una resistencia total a oxacilina junto con co-resistencia a fluoroquinolonas, aunque con una excelente sensibilidad conservada frente a los antibióticos de reserva (glucopéptidos y lipopéptidos).
 - **Antibióticos de uso habitual (resistencia por paciente-organismo-antibiótico):** Conviene dejar claro que son porcentajes de resultados resistentes entre las combinaciones evaluadas, no prevalencias generales de resistencia en la población:  trimetoprim/sulfametoxazol 23,4 %,
   levofloxacino 17,3 %, ciprofloxacino 17,2 %, ceftriaxona 11,0 %, meropenem 1,4 % y ertapenem 0,5 %.
 
@@ -117,6 +138,7 @@ Las secciones 1 y 2 introducen el por qué de nuestro análisis y se procede a l
 Detalladas en la sección 5.5 del notebook. Las más importantes:
 
 - Diseño observacional: se describen asociaciones, no causas.
+- Se ha analizado un periodo de 25 años en vez de analizar año por año
 - Un paciente aporta varios cultivos: los chi-cuadrado y los IC de Wilson asumen independencia y son optimistas;
   la regresión corrige esto con errores agrupados por paciente.
 - La AMR se define como "al menos una resistencia entre los antibióticos probados", que depende de cuántos y cuáles se prueben

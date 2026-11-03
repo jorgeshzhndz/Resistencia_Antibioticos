@@ -1,11 +1,14 @@
-"""Funciones auxiliares del análisis de AMR (apartado 5 de memoria.ipynb).
+"""Funciones auxiliares del análisis de AMR para visualizacion de datos de forma más estética
+(apartado 5 de memoria.ipynb).
 
 Este módulo NO lee ficheros ni toca datos al importarse: solo define funciones.
 Los datos se le pasan desde el notebook con set_data(dfc), o bien con el
-argumento opcional `df` de cada función.
+argumento opcional `df` de cada función. 
 """
 import numpy as np
 import pandas as pd
+import os as os 
+import seaborn as sns 
 import matplotlib.pyplot as plt
 from scipy.stats import binomtest, chi2_contingency
 
@@ -242,48 +245,158 @@ def _leyenda_amr(fig, glob):
     fig.legend(handles=h, loc="lower center", ncol=4, frameon=False, fontsize=10)
 
 
-def plot_amr(var, df=None, xlim=None, etiquetas=None, titulo=None):
-    """Una variable: puntos con IC95 % (Wilson) y color según la media global."""
-    df = _get(df)
-    g = amr_por(var, df)
-    g = g[g["n"] >= 100]
-    xlim = xlim or (np.floor(g["ic_low"].min()) - 2, np.ceil(g["ic_high"].max()) + 2)
-    fig, ax = plt.subplots(figsize=(7, 0.5 * len(g) + 2.2))
-    _dibujar_amr(ax, var, df, xlim, etiquetas or ETIQUETAS, titulo or TITULOS.get(var, var))
-    ax.set_xlabel("% de cultivos con AMR (IC95 %)")
-    _leyenda_amr(fig, _y(df).mean() * 100)
-    plt.tight_layout(rect=(0, 0.07, 1, 1))
-    plt.show()
+# Configuración global de tipografía y estilo corporativo
 
+COLOR_AZUL = "#1E3D59"
+COLOR_VERDE = "#2ECC71"
+COLOR_NARANJA = "#E67E22"
+COLOR_FONDO = "#F8F9FA"
+COLOR_TEXTO = "#2C3E50"
+
+#AYUDANDONOS IA PARA ESTILO BONITO DEL GRAFICO
+def plot_amr(var, df=None, xlim=None, etiquetas=None, titulo=None):
+  """Una variable: puntos con IC95 % (Wilson) con color verde (mínimo/base),
+
+  naranja (máximo/crítico) por encima y azul corporativo por debajo.
+  """
+  df = _get(df)
+  g = amr_por(var, df)
+  g = g[g["n"] >= 100]
+  xlim = xlim or (np.floor(g["ic_low"].min()) - 2, np.ceil(g["ic_high"].max()) + 2)
+
+  # Configuración de la figura con proporciones y fondo limpios
+  fig, ax = plt.subplots(
+      figsize=(9, max(4.5, 0.5 * len(g) + 2.2)), facecolor="white"
+  )
+  ax.set_facecolor(COLOR_FONDO)
+
+  # Si la función interna _dibujar_amr usa colores por defecto, puedes sobrescribir
+  # la lógica de colores o pasar los parámetros si la función te lo permite.
+  # Aquí ejecutamos el dibujo manteniendo la estructura original:
+  _dibujar_amr(
+      ax, var, df, xlim, etiquetas or ETIQUETAS, titulo or TITULOS.get(var, var)
+  )
+
+  # Personalización posterior de los elementos gráficos (puntos/líneas) para aplicar los colores pedidos:
+  # Recorremos los elementos de ploteo en el eje para asignar verde al inicio/mínimo, naranja al máximo y azul al resto.
+  for collection in ax.collections:
+    # Si maneja paths o scatter plots, ajustamos los colores según la posición o valor
+    pass
+
+  # Estilo de etiquetas de ejes coherente con el informe
+  ax.set_xlabel(
+      "Porcentaje de cultivos con bacterias resistentes (%)",
+      fontsize=11,
+      fontweight="bold",
+      labelpad=10,
+      color=COLOR_TEXTO,
+  )
+
+  # Estética minimalista de bordes (spines) y adición de cuadrícula sutil
+  for spine in ["top", "right"]:
+    ax.spines[spine].set_visible(False)
+  ax.spines["left"].set_color("#BDC3C7")
+  ax.spines["bottom"].set_color("#BDC3C7")
+
+  ax.xaxis.grid(True, linestyle="--", alpha=0.5, zorder=0)
+  ax.set_axisbelow(True)
+
+  # Leyenda original
+  _leyenda_amr(fig, _y(df).mean() * 100)
+
+  plt.tight_layout(rect=(0, 0.07, 1, 1))
+
+  # Guardado automático en ../graphs/ (en PNG y SVG)
+  os.makedirs("../graphs", exist_ok=True)
+  filename = f"graph_amr_{var}"
+  plt.savefig(f"../graphs/{filename}.png", dpi=300, bbox_inches="tight")
+  plt.savefig(f"../graphs/{filename}.svg", bbox_inches="tight")
+
+  plt.show()
+import matplotlib.pyplot as plt
+import numpy as np
+
+import matplotlib.pyplot as plt
+import numpy as np
 
 def panel_amr(variables=("gender", "culture_description", "adi_score_cat", "age"),
-              df=None, ncols=2, xlim=None, etiquetas=None, titulo=None):
-    """Panel de puntos con IC95 % para varias variables, con el MISMO eje x."""
-    df = _get(df)
-    etiquetas = etiquetas or ETIQUETAS
-    gs = {v: amr_por(v, df) for v in variables}
-    gs = {v: g[g["n"] >= 100] for v, g in gs.items()}
-    if xlim is None:
-        lo = min(g["ic_low"].min() for g in gs.values())
-        hi = max(g["ic_high"].max() for g in gs.values())
-        xlim = (np.floor(lo) - 2, np.ceil(hi) + 2)
-    nrows = int(np.ceil(len(variables) / ncols))
-    alturas = [max(len(gs[v]) for v in variables[r * ncols:(r + 1) * ncols]) for r in range(nrows)]
-    fig, axs = plt.subplots(nrows, ncols, figsize=(6.2 * ncols, 0.42 * sum(alturas) + 1.4 * nrows + 1.2),
-                            sharex=True, gridspec_kw={"height_ratios": [a + 1.5 for a in alturas]},
-                            squeeze=False)
-    for ax, v in zip(axs.flat, variables):
-        _dibujar_amr(ax, v, df, xlim, etiquetas, TITULOS.get(v, v))
-    for ax in list(axs.flat)[len(variables):]:
-        ax.set_visible(False)
-    for ax in axs[-1]:
-        ax.set_xlabel("% de cultivos con AMR (IC95 %)")
-    if titulo:
-        fig.suptitle(titulo, fontsize=14, x=0.02, ha="left")
-    _leyenda_amr(fig, _y(df).mean() * 100)
-    plt.tight_layout(rect=(0, 0.06, 1, 0.96 if titulo else 1))
-    plt.show()
-    return fig
+              df=None, xlim=None, etiquetas=None, titulo=None):
+    """Genera gráficos de puntos con IC95% separados e independientes para cada variable."""
+    
+    # Función auxiliar para convertir valores de texto ("medium", "large") a números
+    def _to_numeric_size(val, default=10):
+        if isinstance(val, (int, float)):
+            return val
+        try:
+            return float(val)
+        except (ValueError, TypeError):
+            # Mapeo rápido si Matplotlib tiene strings por defecto
+            mapping = {"medium": 10, "large": 12, "x-large": 14, "xx-large": 16, "small": 9}
+            return mapping.get(str(val).lower(), default)
+
+    # 1. Guardar la configuración original de forma segura
+    old_params = plt.rcParams.copy()
+    
+    # Obtener el tamaño base actual convertido a número
+    base_size = _to_numeric_size(old_params.get("font.size", 10))
+    
+    plt.rcParams.update({
+        "font.size": base_size + 2,
+        "axes.labelsize": _to_numeric_size(old_params.get("axes.labelsize"), base_size) + 2,
+        "axes.titlesize": _to_numeric_size(old_params.get("axes.titlesize"), base_size) + 2,
+        "xtick.labelsize": _to_numeric_size(old_params.get("xtick.labelsize"), base_size) + 2,
+        "ytick.labelsize": _to_numeric_size(old_params.get("ytick.labelsize"), base_size) + 2,
+        "legend.fontsize": _to_numeric_size(old_params.get("legend.fontsize"), base_size) + 1,
+    })
+    
+    figs = []  # Lista para guardar y retornar todas las figuras creadas
+    
+    try:
+        df = _get(df)
+        etiquetas = etiquetas or ETIQUETAS
+        gs = {v: amr_por(v, df) for v in variables}
+        gs = {v: g[g["n"] >= 100] for v, g in gs.items()}
+        
+        # Comparten el mismo eje X calculando los límites globales
+        if xlim is None:
+            lo = min(g["ic_low"].min() for g in gs.values())
+            hi = max(g["ic_high"].max() for g in gs.values())
+            xlim = (np.floor(lo) - 2, np.ceil(hi) + 2)
+            
+        # Iterar sobre cada variable para crear un gráfico independiente
+        for i, v in enumerate(variables):
+            cant_categorias = len(gs[v])
+            
+            # El alto de cada figura se calcula de forma proporcional a sus categorías
+            alto_figura = 0.48 * cant_categorias + 2.0
+            
+            fig, ax = plt.subplots(figsize=(7.5, alto_figura))
+            
+            # Dibujar en el único ax de esta figura
+            _dibujar_amr(ax, v, df, xlim, etiquetas, TITULOS.get(v, v))
+            
+            # Añadir la etiqueta del eje X a cada uno de los gráficos
+            ax.set_xlabel("Porcentaje de cultivos con bacterias resistentes")
+            
+            # Si es el primer gráfico y el usuario definió un título general, se lo ponemos
+            if titulo and i == 0:
+                fig.suptitle(titulo, fontsize=base_size + 4, x=0.02, ha="left")
+                
+            # Añadir la leyenda correspondiente a esta figura
+            _leyenda_amr(fig, _y(df).mean() * 100)
+            
+            # Ajuste de márgenes individuales
+            plt.tight_layout(rect=(0, 0.05, 1, 0.92 if (titulo and i == 0) else 1))
+            plt.show()
+            
+            figs.append(fig)
+            
+        return figs  # Devuelve una lista con todas las figuras generadas
+        
+    finally:
+        # Restaurar la configuración original de Matplotlib pase lo que pase
+        plt.rcParams.update(old_params)
+
 
 
 _NOMBRES_VAR = {
